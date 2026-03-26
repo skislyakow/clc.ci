@@ -26,12 +26,12 @@ def shorten_link(token, url):
         'Content-Type': 'application/json'
     }
     try:
-        responce = requests.post(API_URL, headers=headers, json=payload)
-        responce.status_code
+        response = requests.post(API_URL, headers=headers, json=payload)
+        response.status_code
     except requests.exceptions.HTTPError:
         return f'Ошибка сокрашения: {url}'
     try:
-        full_url = responce.json()['shorturl']
+        full_url = response.json()['shorturl']
     except KeyError:
         raise SystemExit(f'Ошибка! Ввели неправильный URL - {url} ')
     parsed = urlparse(full_url)
@@ -45,12 +45,12 @@ def count_clics(token, link):
         'Content-Type': 'application/json'
     }
     try:
-        responce = requests.get(LIST_LINK_API_URL + url, headers=headers)
-        responce.status_code
+        response = requests.get(LIST_LINK_API_URL + url, headers=headers)
+        response.status_code
     except requests.exceptions.HTTPError:
         return f'Ошибка получения данных: {link}'
     try:
-        clicks = responce.json()['data']['clicks']
+        clicks = response.json()['data']['clicks']
     except KeyError:
         raise SystemExit('Неверная короткая ссылка!')
     return clicks
@@ -63,8 +63,8 @@ def is_bitlink(url):
         'Content-Type': 'application/json'
     }
     try:
-        responce = requests.get(LIST_LINK_API_URL + url, headers=headers)
-        if responce.json()['error'] == 0:
+        response = requests.get(LIST_LINK_API_URL + url, headers=headers)
+        if response.json()['error'] == 0:
             return True
     except requests.exceptions.HTTPError:
         return False

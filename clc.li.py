@@ -5,14 +5,11 @@ import requests
 from dotenv import load_dotenv
 
 
-API_URL = 'https://clc.li/api/url/add'
-
-
 def shorten_link(token, url):
     payload = {
         'url': url,
     }   
-    response = requests.post(API_URL, headers=headers, json=payload)
+    response = requests.post(api_url, headers=headers, json=payload)
     response.raise_for_status()
     response = response.json()
     if 'shorturl' not in response:
@@ -50,6 +47,7 @@ if __name__ == '__main__':
     
     url = input()
 
+    api_url = 'https://clc.li/api/url/add'
     list_link_api_url = f'https://clc.li/api/urls?short={url}'
     
     try:
@@ -57,5 +55,10 @@ if __name__ == '__main__':
             print('Количество кликов:', count_clics(token_clcli, url))  
         else:
             print('Короткая ссылка', shorten_link(token_clcli, url))
-    except (requests.exceptions.HTTPError, KeyError):
-        raise SystemExit("Произошла ошибка при работе с API или ответом сервера")
+    except requests.exceptions.HTTPError as error:
+        exit(f"Ошибка сети или API: {error}")
+    except ValueError as error:
+        exit(f"Ошибка данных: {error}")
+    except KeyError:
+        exit("API вернул неожиданный формат данных")
+        

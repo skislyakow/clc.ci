@@ -20,7 +20,7 @@ def shorten_link(token, url):
 
 def count_clics(token, link):
     response = requests.get(list_link_api_url, headers=headers)
-    response.status_code
+    response.raise_for_status()
     clicks = response.json()['data']['clicks']
     return clicks
 

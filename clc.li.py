@@ -5,56 +5,58 @@ import requests
 from dotenv import load_dotenv
 
 
+API_URL = 'https://clc.li/api/url/add'
+LIST_LINK_API_URL = 'https://clc.li/api/urls'
+
+
 def shorten_link(token, url):
     payload = {
         'url': url,
     }   
-    response = requests.post(api_url, headers=headers, json=payload)
+    response = requests.post(API_URL, headers=headers, json=payload)
     response.raise_for_status()
     response = response.json()
     if 'shorturl' not in response:
         raise ValueError(f"API не вернул короткую ссылку для {url}")
-    parsed = urlparse(response['shorturl'])    
-    return f"{parsed.netloc}{parsed.path}"
+    shorturl = urlparse(response['shorturl'])    
+    return f"{shorturl.netloc}{shorturl.path}"
 
 
 def count_clics(token, link):
-    response = requests.get(list_link_api_url, headers=headers)
+    params = {'short': link}
+    response = requests.get(LIST_LINK_API_URL, headers=headers, params=params)
     response.raise_for_status()
     clicks = response.json()['data']['clicks']
     return clicks
 
 
 def is_bitlink(url):
-    response = requests.get(list_link_api_url, headers=headers)
+    params = {'short': url}
+    response = requests.get(LIST_LINK_API_URL, headers=headers, params=params)
     response.raise_for_status()
-    if response.json()['error'] == 0:
+    if not response.json()['error']:
         return True
-    else:
-        return False
+    return False
 
 
 if __name__ == '__main__': 
     load_dotenv()
 
-    token_clcli = os.environ['TOKEN_CLCLI']
+    clcli_token = os.environ['CLCLI_TOKEN']
     
     headers = {
         'User-Agent': 'curl',
-        'Authorization': f'Bearer {os.environ['TOKEN_CLCLI']}',
+        'Authorization': f'Bearer {clcli_token}',
         'Content-Type': 'application/json'
     }
     
     url = input()
-
-    api_url = 'https://clc.li/api/url/add'
-    list_link_api_url = f'https://clc.li/api/urls?short={url}'
     
     try:
         if is_bitlink(url):
-            print('Количество кликов:', count_clics(token_clcli, url))  
+            print('Количество кликов:', count_clics(clcli_token, url))  
         else:
-            print('Короткая ссылка', shorten_link(token_clcli, url))
+            print('Короткая ссылка', shorten_link(clcli_token, url))
     except requests.exceptions.HTTPError as error:
         exit(f"Ошибка сети или API: {error}")
     except ValueError as error:

@@ -34,9 +34,7 @@ def is_bitlink(url):
     params = {'short': url}
     response = requests.get(LIST_LINK_API_URL, headers=headers, params=params)
     response.raise_for_status()
-    if not response.json()['error']:
-        return True
-    return False
+    return not response.json()['error']
 
 
 if __name__ == '__main__': 

@@ -1,3 +1,4 @@
+import argparse
 import os
 from urllib.parse import urlparse
 
@@ -12,13 +13,13 @@ LIST_LINK_API_URL = 'https://clc.li/api/urls'
 def shorten_link(token, url):
     payload = {
         'url': url,
-    }   
+    }
     response = requests.post(API_URL, headers=headers, json=payload)
     response.raise_for_status()
     response = response.json()
     if 'shorturl' not in response:
         raise ValueError(f"API не вернул короткую ссылку для {url}")
-    shorturl = urlparse(response['shorturl'])    
+    shorturl = urlparse(response['shorturl'])
     return f"{shorturl.netloc}{shorturl.path}"
 
 
@@ -37,22 +38,29 @@ def is_bitlink(url):
     return not response.json()['error']
 
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     load_dotenv()
 
+    parser = argparse.ArgumentParser(description='Работа с clc.li API')
+    parser.add_argument('url', nargs='?', help='URL или битлинк')
+    args = parser.parse_args()
+
     clcli_token = os.environ['CLCLI_TOKEN']
-    
+
     headers = {
         'User-Agent': 'curl',
         'Authorization': f'Bearer {clcli_token}',
         'Content-Type': 'application/json'
     }
-    
-    url = input()
-    
+
+    if args.url:
+        url = args.url
+    else:
+        url = input()
+
     try:
         if is_bitlink(url):
-            print('Количество кликов:', count_clics(clcli_token, url))  
+            print('Количество кликов:', count_clics(clcli_token, url))
         else:
             print('Короткая ссылка', shorten_link(clcli_token, url))
     except requests.exceptions.HTTPError as error:
@@ -61,4 +69,3 @@ if __name__ == '__main__':
         exit(f"Ошибка данных: {error}")
     except KeyError:
         exit("API вернул неожиданный формат данных")
-        

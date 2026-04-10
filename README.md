@@ -18,6 +18,10 @@ cd clc.ci
 ```bash
 pip install requests python-dotenv
 ```
+или запустите
+```bash
+pip install -r requirements
+```
 
 ### Настройте переменные окружения:
 Создайте в корне проекта файл `.env` и добавьте туда свой API-токен от сервиса `clc.to`:
